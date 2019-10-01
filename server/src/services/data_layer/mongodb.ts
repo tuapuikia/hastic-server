@@ -15,7 +15,9 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
     if(doc._id !== undefined) {
       doc._id = new ObjectID(doc._id);
     }
+    const startTime = Date.now();
     const newDoc = await collection.insertOne(doc);
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
     return newDoc.insertedId.toString();
   }
 
@@ -31,7 +33,9 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
         doc._id = new ObjectID(doc._id);
       }
     });
+    const startTime = Date.now();
     const newDocs = await collection.insertMany(docs);
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
     return _.map(newDocs.insertedIds, (id: ObjectID) => id.toString());
   }
 
@@ -45,10 +49,12 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
     let mongodbUpdateQuery = { $set: updateQuery }
     query = wrapIdToMongoDbQuery(query);
 
+    const startTime = Date.now();
     await collection.updateOne(
       query,
       mongodbUpdateQuery
     );
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
   }
 
   async dbUpdateMany(collection: Collection, query: string[] | object, updateQuery: any): Promise<void> {
@@ -62,16 +68,20 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
     }
     let mongodbUpdateQuery = { $set: updateQuery };
     query = wrapIdsToMongoDbQuery(query);
+    const startTime = Date.now();
     await collection.updateMany(
       query,
       mongodbUpdateQuery
     );
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
   }
 
   async dbFindOne(collection: Collection, query: FilterQuery<string | object>): Promise<any> {
     // http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#findOne
     query = wrapIdToMongoDbQuery(query);
+    const startTime = Date.now();
     let doc = await collection.findOne(query);
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
     // TODO: move to utils
     if(doc !== null) {
       doc._id = doc._id.toString();
@@ -87,7 +97,9 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
     query = convertQueryToMongoFormat(query);
     query = wrapIdsToMongoDbQuery(query);
     try {
+      const startTime = Date.now();
       const docs = await collection.find(query).sort(sortQuery).toArray();
+      console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
       docs.forEach(doc => {
         if (doc !== null) {
           doc._id = doc._id.toString();
@@ -103,7 +115,9 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
   async dbRemoveOne(collection: Collection, query: FilterQuery<string | object>): Promise<boolean> {
     // http://mongodb.github.io/node-mongodb-native/3.1/api/Collection.html#deleteOne
     query = wrapIdToMongoDbQuery(query);
+    const startTime = Date.now();
     const deleted = await collection.deleteOne(query);
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
     if(deleted.deletedCount > 1) {
       throw new Error(`Removed ${deleted.deletedCount} elements with query: ${JSON.stringify(query)}. Only one is Ok.`);
     }
@@ -116,7 +130,9 @@ export class MongoDbQueryWrapper implements DbQueryWrapper {
       return 0;
     }
     query = wrapIdsToMongoDbQuery(query);
+    const startTime = Date.now();
     const deleted = await collection.deleteMany(query);
+    console.log(`${this} time ${(Date.now() - startTime) / 1000}s`);
     return deleted.deletedCount;
   }
 }
