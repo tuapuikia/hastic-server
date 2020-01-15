@@ -91,4 +91,15 @@ def run_server():
     print('Analytics process is running') # we need to print to stdout and flush
     sys.stdout.flush()                    # because node.js expects it
 
-    loop.run_until_complete(app_loop())
+    try:
+        loop.run_until_complete(app_loop())
+    except KeyboardInterrupt as e:
+        logger.info('Interrupt received, start shutdown')
+    finally:
+        server_service.terminate()
+        pending = asyncio.Task.all_tasks()
+        logger.info(pending)
+        loop.run_until_complete(asyncio.gather(*pending))
+        loop.stop()
+        logger.info('Shutdown complete')
+        exit(1)

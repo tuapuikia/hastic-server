@@ -1,0 +1,54 @@
+version: '2.1'
+services:
+  server:
+    image: hastic/server:latest
+    build:
+      dockerfile: server/Dockerfile
+      context: .
+    environment:
+
+      HASTIC_API_KEY: ${HASTIC_API_KEY?"HASTIC_API_KEY variable is required"}
+      GRAFANA_URL: ${GRAFANA_URL?"GRAFANA_URL variable is required"}
+
+      HASTIC_DB_CONNECTION_STRING: ${HASTIC_MONGO_USER:-hastic}:${HASTIC_MONGO_PASSWORD:-password}@mongo:27017/${HASTIC_MONGO_DB:-hastic}
+      ZMQ_CONNECTION_STRING: ${ZMQ_CONNECTION_STRING:-tcp://analytics:8002}
+
+      HASTIC_ALERT_TYPE: ${HASTIC_ALERT_TYPE}
+      HASTIC_ALERTMANAGER_URL: ${HASTIC_ALERTMANAGER_URL}
+      HASTIC_WEBHOOK_URL: ${HASTIC_WEBHOOK_URL}
+      HASTIC_INSTANCE_NAME: ${HASTIC_INSTANCE_NAME}
+      HASTIC_ALERT_IMAGE: ${HASTIC_ALERT_IMAGE}
+      HASTIC_TIMEZONE_OFFSET: ${HASTIC_TIMEZONE_OFFSET}
+
+      HASTIC_DB_CONNECTION_TYPE: mongodb
+
+    ports:
+      - ${HASTIC_PORT:-8000}:8000
+    restart: always
+    depends_on:
+      - mongo
+
+  analytics:
+    image: hastic/analytics:latest
+    build: analytics
+    restart: always
+    command: python -u -m cProfile -o /data/server.prof -s time bin/server
+    volumes:
+      - hastic_analytics:/data
+
+  mongo:
+    image: mongo:4.2.1-bionic
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${HASTIC_MONGO_ADMIN_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${HASTIC_MONGO_ADMIN_PASSWORD:-password}
+      MONGO_INITDB_DATABASE: ${HASTIC_MONGO_DB:-hastic}
+    restart: always
+    volumes:
+      - hastic_mongo:/data/db
+      - hastic_mongo_config:/data/configdb
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+volumes:
+  hastic_mongo:
+  hastic_mongo_config:
+  hastic_analytics:

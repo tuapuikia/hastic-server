@@ -108,3 +108,7 @@ class ServerService(utils.concurrent.AsyncZmqActor):
         except Exception:
             error_text = traceback.format_exc()
             logger.error("__handle_message Exception: '%s'" % error_text)
+
+    def terminate(self):
+        self.__server_socket.close()
+        self._zmq_context.term()
