@@ -1,7 +1,7 @@
 import * as AnalyticUnit from '../models/analytic_units';
 import * as config from '../config';
 
-import axios from 'axios';
+import axios from 'axios-https-proxy-fix';
 import * as _ from 'lodash';
 
 
@@ -66,6 +66,10 @@ class WebhookNotifier implements Notifier {
 
     const options = {
       method: 'POST',
+      proxy: {
+        host: config.HASTIC_WEBHOOK_PROXY_HOST,
+        port: config.HASTIC_WEBHOOK_PROXY_PORT
+      },
       url: config.HASTIC_WEBHOOK_URL,
       data,
       headers: { 'Content-Type': 'application/json' }

@@ -62,6 +62,8 @@ export const HASTIC_ALERT_TYPE = getConfigField('HASTIC_ALERT_TYPE', AlertTypes.
 export const HASTIC_ALERT_IMAGE = getConfigField('HASTIC_ALERT_IMAGE', false);
 
 export const HASTIC_WEBHOOK_URL = getConfigField('HASTIC_WEBHOOK_URL', null);
+export const HASTIC_WEBHOOK_PROXY_HOST = getConfigField('HASTIC_WEBHOOK_PROXY_HOST', null);
+export const HASTIC_WEBHOOK_PROXY_PORT = getConfigField('HASTIC_WEBHOOK_PROXY_PORT', null);
 export const HASTIC_TIMEZONE_OFFSET = getTimeZoneOffset();
 
 export const HASTIC_ALERTMANAGER_URL = getConfigField('HASTIC_ALERTMANAGER_URL', null);
