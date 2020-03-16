@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   server:
-    image: hastic/server:latest
+    image: tuapuikia/hastic-server:latest
     build:
       dockerfile: server/Dockerfile
       context: .
@@ -27,8 +27,10 @@ services:
     restart: always
 
   analytics:
-    image: hastic/analytics:latest
-    build: analytics
+    image: tuapuikia/hastic-analytics:latest
+    build:
+      dockerfile: Dockerfile
+      context: ./analytics
     environment:
       # TODO: use any port for server connection
       HASTIC_SERVER_URL: "ws://server:8002"
